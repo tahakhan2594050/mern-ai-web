@@ -1,97 +1,125 @@
-// Vercel serverless function with proper routing
-module.exports = (req, res) => {
-    // Set CORS headers for all requests
+// Bulletproof Vercel serverless function
+export default async function handler(req, res) {
+    // Set comprehensive CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    res.setHeader('Access-Control-Max-Age', '86400');
     res.setHeader('Content-Type', 'application/json');
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
-    // Get the URL path
-    const url = req.url || '/';
-    const method = req.method || 'GET';
-
-    console.log(`Request: ${method} ${url}`);
+    // Log request for debugging
+    console.log(`${req.method} ${req.url}`);
 
     try {
+        const { url, method } = req;
+        const timestamp = new Date().toISOString();
+
         // Root endpoint
-        if (url === '/' || url === '/index.html') {
-            res.status(200).json({
-                message: 'Server is Live!',
+        if (url === '/' || url === '/index.html' || url === '') {
+            return res.status(200).json({
+                success: true,
+                message: 'AI Web Server is Live!',
                 status: 'OK',
-                timestamp: new Date().toISOString(),
-                url: url,
-                method: method,
-                server: 'Vercel Serverless'
+                timestamp,
+                server: 'Vercel Serverless',
+                version: '2.0.0',
+                endpoints: {
+                    health: '/health',
+                    apiTest: '/api/test',
+                    docs: '/docs'
+                }
             });
-            return;
         }
 
-        // Health check endpoint
-        if (url === '/health') {
-            res.status(200).json({
+        // Health check
+        if (url === '/health' || url === '/api/health') {
+            return res.status(200).json({
+                success: true,
                 status: 'healthy',
-                timestamp: new Date().toISOString(),
+                timestamp,
                 uptime: process.uptime(),
                 memory: process.memoryUsage(),
-                version: '1.0.0'
+                environment: process.env.NODE_ENV || 'production',
+                version: '2.0.0'
             });
-            return;
         }
 
         // API test endpoint
         if (url === '/api/test' || url.startsWith('/api/test')) {
-            res.status(200).json({
+            return res.status(200).json({
+                success: true,
                 message: 'API Test Successful!',
-                timestamp: new Date().toISOString(),
+                timestamp,
+                method,
+                url,
                 environment: process.env.NODE_ENV || 'production',
-                url: url,
-                method: method,
-                headers: req.headers
+                server: 'Vercel Serverless Function',
+                requestHeaders: req.headers,
+                version: '2.0.0'
             });
-            return;
         }
 
-        // Handle any API routes
+        // Documentation endpoint
+        if (url === '/docs' || url === '/api/docs') {
+            return res.status(200).json({
+                success: true,
+                message: 'API Documentation',
+                timestamp,
+                version: '2.0.0',
+                endpoints: [
+                    { path: '/', method: 'GET', description: 'Server status' },
+                    { path: '/health', method: 'GET', description: 'Health check' },
+                    { path: '/api/test', method: 'GET', description: 'API test' },
+                    { path: '/docs', method: 'GET', description: 'This documentation' }
+                ],
+                server: 'Vercel Serverless'
+            });
+        }
+
+        // Handle any other API routes
         if (url.startsWith('/api/')) {
-            res.status(200).json({
+            return res.status(200).json({
+                success: true,
                 message: 'API endpoint reached',
                 endpoint: url,
-                method: method,
-                timestamp: new Date().toISOString(),
-                note: 'This is a placeholder response. Add your API logic here.'
+                method,
+                timestamp,
+                note: 'This is a placeholder. Add your specific API logic here.',
+                version: '2.0.0'
             });
-            return;
         }
 
-        // Catch-all for any other routes (this prevents network errors)
-        res.status(200).json({
-            message: 'Route handler working',
+        // Catch-all for any other routes
+        return res.status(200).json({
+            success: true,
+            message: 'Server is responding',
             requestedUrl: url,
-            method: method,
-            timestamp: new Date().toISOString(),
-            note: 'This route is not specifically handled but the server is responding',
-            availableRoutes: [
+            method,
+            timestamp,
+            note: 'This route is handled by the catch-all handler',
+            server: 'Vercel Serverless',
+            version: '2.0.0',
+            availableEndpoints: [
                 '/ - Main endpoint',
                 '/health - Health check',
                 '/api/test - API test',
-                '/api/* - API routes'
+                '/docs - Documentation'
             ]
         });
 
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({
+        return res.status(500).json({
+            success: false,
             error: 'Internal Server Error',
             message: error.message,
             timestamp: new Date().toISOString(),
-            url: url,
-            method: method
+            version: '2.0.0'
         });
     }
-};
+}
