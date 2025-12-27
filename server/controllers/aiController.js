@@ -6,7 +6,7 @@ import fs from 'fs';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
-import { createCanvas } from 'canvas';
+// Removed canvas import for serverless compatibility
 import { GoogleGenAI, Modality } from "@google/genai";
 import axios from "axios";
 
@@ -16,56 +16,35 @@ const AI = new OpenAI({
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
-// Placeholder image creation
+// Serverless-friendly placeholder image creation using a simple base64 image
 async function createPlaceholderImage(prompt) {
     try {
-        const canvas = createCanvas(512, 512);
-        const ctx = canvas.getContext('2d');
+        // Create a simple SVG placeholder instead of using Canvas
+        const svgContent = `
+        <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <rect width="512" height="512" fill="url(#grad1)" />
+            <text x="256" y="200" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">AI Image Generator</text>
+            <text x="256" y="240" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="white">Generating Image...</text>
+            <text x="256" y="280" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="white">Please wait while image is being created</text>
+            <text x="256" y="320" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}</text>
+        </svg>`;
         
-        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(1, '#764ba2');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 512, 512);
-        
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('AI Image Generator', 256, 200);
-        
-        ctx.font = '16px Arial';
-        ctx.fillText('Generating Image...', 256, 240);
-        ctx.fillText('Please wait while image is being created', 256, 280);
-        
-        ctx.font = '14px Arial';
-        const words = prompt.split(' ');
-        let line = '';
-        let y = 320;
-        for (let i = 0; i < words.length; i++) {
-            const testLine = line + words[i] + ' ';
-            const metrics = ctx.measureText(testLine);
-            if (metrics.width > 480 && i > 0) {
-                ctx.fillText(line, 256, y);
-                line = words[i] + ' ';
-                y += 20;
-            } else {
-                line = testLine;
-            }
-        }
-        ctx.fillText(line, 256, y);
-        
-        return canvas.toBuffer('image/png');
+        return Buffer.from(svgContent);
     } catch (error) {
         console.log('Error creating placeholder image:', error.message);
-        const canvas = createCanvas(512, 512);
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#4a90e2';
-        ctx.fillRect(0, 0, 512, 512);
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('AI Generated Image', 256, 256);
-        return canvas.toBuffer('image/png');
+        // Fallback SVG
+        const fallbackSvg = `
+        <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+            <rect width="512" height="512" fill="#4a90e2" />
+            <text x="256" y="256" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">AI Generated Image</text>
+        </svg>`;
+        return Buffer.from(fallbackSvg);
     }
 }
 
