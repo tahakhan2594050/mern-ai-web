@@ -1,11 +1,6 @@
 {
-  "name": "ai-web-fullstack",
-  "version": "3.0.0",
-  "description": "Bulletproof AI Web Application",
-  "scripts": {
-    "build": "echo 'Build complete'",
-    "start": "node api/index.js"
-  },
+  "name": "ai-web-simple",
+  "version": "1.0.0",
   "engines": {
     "node": "18.x"
   }
