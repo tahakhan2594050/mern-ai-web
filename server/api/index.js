@@ -1,108 +1,51 @@
-// Ultra-minimal Vercel serverless function
-const http = require('http');
-const url = require('url');
-
+// Ultra-simple Vercel serverless function
 module.exports = (req, res) => {
-    // Enable CORS
+    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Content-Type', 'application/json');
 
-    // Handle preflight requests
+    // Handle preflight
     if (req.method === 'OPTIONS') {
-        res.statusCode = 200;
-        res.end();
+        res.status(200).end();
         return;
     }
 
-    const parsedUrl = url.parse(req.url, true);
-    const path = parsedUrl.pathname;
-    const method = req.method;
-
     try {
-        // Root endpoint
-        if (path === '/' && method === 'GET') {
-            res.statusCode = 200;
-            res.end(JSON.stringify({
+        // Simple routing
+        if (req.url === '/' || req.url === '/health') {
+            res.status(200).json({
                 message: 'Server is Live!',
                 status: 'OK',
                 timestamp: new Date().toISOString(),
+                url: req.url,
+                method: req.method
+            });
+            return;
+        }
+
+        if (req.url === '/api/test') {
+            res.status(200).json({
+                message: 'API Test Successful!',
+                timestamp: new Date().toISOString(),
                 environment: process.env.NODE_ENV || 'production'
-            }));
-            return;
-        }
-
-        // Health endpoint
-        if (path === '/health' && method === 'GET') {
-            res.statusCode = 200;
-            res.end(JSON.stringify({
-                status: 'healthy',
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime()
-            }));
-            return;
-        }
-
-        // API test endpoint
-        if (path === '/api/test' && method === 'GET') {
-            res.statusCode = 200;
-            res.end(JSON.stringify({
-                message: 'API is working!',
-                timestamp: new Date().toISOString(),
-                method: method,
-                path: path,
-                env: {
-                    nodeEnv: process.env.NODE_ENV,
-                    hasClerkKey: !!process.env.CLERK_SECRET_KEY,
-                    hasDbUrl: !!process.env.DATABASE_URL
-                }
-            }));
-            return;
-        }
-
-        // POST test endpoint
-        if (path === '/api/test' && method === 'POST') {
-            let body = '';
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
-            req.on('end', () => {
-                try {
-                    const data = body ? JSON.parse(body) : {};
-                    res.statusCode = 200;
-                    res.end(JSON.stringify({
-                        message: 'POST endpoint working!',
-                        timestamp: new Date().toISOString(),
-                        receivedData: data
-                    }));
-                } catch (error) {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({
-                        error: 'Invalid JSON',
-                        timestamp: new Date().toISOString()
-                    }));
-                }
             });
             return;
         }
 
-        // 404 for all other routes
-        res.statusCode = 404;
-        res.end(JSON.stringify({
+        // 404 for other routes
+        res.status(404).json({
             error: 'Route not found',
-            path: path,
-            method: method,
+            url: req.url,
             timestamp: new Date().toISOString()
-        }));
+        });
 
     } catch (error) {
-        console.error('Server error:', error);
-        res.statusCode = 500;
-        res.end(JSON.stringify({
+        console.error('Error:', error);
+        res.status(500).json({
             error: 'Internal Server Error',
-            message: error.message,
-            timestamp: new Date().toISOString()
-        }));
+            message: error.message
+        });
     }
 };
