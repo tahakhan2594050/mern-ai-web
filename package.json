@@ -1,0 +1,14 @@
+{
+  "name": "mern-ai-web",
+  "version": "1.0.0",
+  "description": "Full-stack AI web application",
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "node server/api/index.js",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
