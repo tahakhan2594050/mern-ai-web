@@ -1,20 +1,32 @@
-# Server Deployment Guide for Vercel - WORKING VERSION
+# 🚀 WORKING SERVER DEPLOYMENT GUIDE
 
-## ✅ CURRENT STATUS: MINIMAL WORKING SERVER
+## ✅ FIXED ISSUES:
+1. **Downgraded Express** from 5.x to 4.x (more stable for serverless)
+2. **Switched to CommonJS** instead of ES modules (better Vercel compatibility)
+3. **Fixed dotenv** version to stable 16.x
+4. **Added comprehensive error handling** with try-catch blocks
+5. **Simplified middleware structure** to avoid conflicts
 
-The server is now configured with a minimal, serverless-compatible setup that should deploy successfully on Vercel.
+## 📁 CURRENT WORKING FILES:
+- `server-cjs.js` - Main server file (CommonJS)
+- `package.json` - Updated with stable dependencies
+- `vercel.json` - Points to server-cjs.js
 
-## 🚀 Quick Deploy Steps:
+## 🔧 DEPLOYMENT STEPS:
 
-1. **Push to GitHub**: Commit and push all changes
-2. **Vercel Setup**:
-   - Connect your GitHub repo to Vercel
-   - Set **Root Directory** to `server`
-   - Add environment variables (see below)
-   - Deploy!
+### 1. Push to GitHub
+```bash
+git add .
+git commit -m "Fix server for Vercel deployment"
+git push
+```
 
-## 🔧 Environment Variables (Add these in Vercel Dashboard):
+### 2. Vercel Configuration
+- **Root Directory**: `server`
+- **Build Command**: Leave empty or `npm install`
+- **Output Directory**: Leave empty
 
+### 3. Environment Variables (Add in Vercel Dashboard):
 ```
 DATABASE_URL=your_neon_database_url
 CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -29,39 +41,22 @@ GOOGLE_API_KEY=your_google_api_key
 NODE_ENV=production
 ```
 
-## 📋 What's Working Now:
+## 🧪 TEST ENDPOINTS:
+After deployment, test these URLs:
+- `https://your-app.vercel.app/` - Health check
+- `https://your-app.vercel.app/health` - Detailed health
+- `https://your-app.vercel.app/api/test` - API test
 
-- ✅ Basic Express server with CORS
-- ✅ Health check endpoints: `/` and `/health`
-- ✅ Test endpoint: `/api/test`
-- ✅ Proper error handling
-- ✅ Serverless-compatible structure
-- ✅ No problematic dependencies (Canvas removed)
+## 📦 STABLE DEPENDENCIES:
+- Express 4.18.2 (stable)
+- dotenv 16.3.1 (stable)
+- CORS 2.8.5 (stable)
+- All other dependencies kept at working versions
 
-## 🔄 Next Steps After Deployment:
+## 🔄 NEXT STEPS AFTER SUCCESSFUL DEPLOYMENT:
+1. Verify basic endpoints work
+2. Gradually add authentication routes
+3. Add AI functionality routes
+4. Test each feature incrementally
 
-Once the basic server is deployed and working:
-
-1. **Test the deployment**: Visit your Vercel URL
-2. **Verify endpoints**: Check `/health` and `/api/test`
-3. **Add authentication**: Gradually add Clerk middleware
-4. **Add routes**: Integrate AI, user, and admin routes one by one
-
-## 🐛 If Still Having Issues:
-
-1. Check Vercel function logs in dashboard
-2. Verify all environment variables are set
-3. Make sure root directory is set to `server`
-4. Check that Node.js version is compatible
-
-## 📁 Current File Structure:
-```
-server/
-├── index.js (main entry point)
-├── server.js (full version - backup)
-├── vercel.json (deployment config)
-├── package.json (dependencies)
-└── ... (other files)
-```
-
-The minimal `index.js` should deploy without issues. Once working, we can gradually add back the full functionality.
+This configuration should deploy successfully without the `FUNCTION_INVOCATION_FAILED` error!
