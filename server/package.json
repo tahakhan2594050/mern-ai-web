@@ -1,11 +1,16 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "server": "nodemon server.js",
-    "start": "node server.js"
+    "server": "nodemon index.js",
+    "start": "node index.js",
+    "build": "echo 'No build step required'",
+    "vercel-build": "echo 'Build completed'"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +22,6 @@
     "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "^1.0.2",
     "axios": "^1.12.2",
-    "canvas": "^3.2.0",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
