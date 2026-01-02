@@ -1,7 +1,5 @@
 {
-  "name": "ai-web-simple",
+  "name": "ai-web-app",
   "version": "1.0.0",
-  "engines": {
-    "node": "18.x"
-  }
+  "description": "AI Web Application - Clean and Simple"
 }

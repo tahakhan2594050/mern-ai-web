@@ -1,9 +1,7 @@
-name: Deploy to GitHub Pages
+name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -26,13 +24,12 @@ jobs:
         cd client
         npm ci
 
-    - name: Build
+    - name: Build React App
       run: |
         cd client
         npm run build
       env:
-        VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-        VITE_BASE_URL: https://your-username.github.io/mern-ai-web/api
+        VITE_CLERK_PUBLISHABLE_KEY: pk_test_Zmxvd2luZy1jb2QtMjIuY2xlcmsuYWNjb3VudHMuZGV2JA
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
